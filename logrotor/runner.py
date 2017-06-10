@@ -63,6 +63,10 @@ class Runner(Thread):
         logging.info('Stopping runner')
         self._running = False
 
+    @property
+    def is_running(self):
+        return self._running
+
     async def _consumer(self):
         while self._running:
             if self._queue.empty():

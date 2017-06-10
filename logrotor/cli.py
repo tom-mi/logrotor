@@ -1,5 +1,6 @@
 import argparse
 import logging
+import signal
 import time
 
 import yaml
@@ -19,12 +20,16 @@ def logrotor():
     with open(args.config) as f:
         config = yaml.load(f)
     runner = Runner(config)
+
+    def sigterm_handler(_signal, _stack_frame):
+        logging.info('Received SIGTERM')
+        runner.stop()
+
+    signal.signal(signal.SIGTERM, sigterm_handler)
     runner.start()
 
-    try:
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        runner.stop()
+    while runner.is_running:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            runner.stop()
