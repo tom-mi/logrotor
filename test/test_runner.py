@@ -48,7 +48,7 @@ def test_runner(send_udp, tmpdir, runner, runner_thread):
 
 
 def test_runner_rotates_at_given_interval(send_udp, tmpdir, runner, runner_thread):
-    with freeze_time() as frozen_time:
+    with freeze_time('2017-07-28') as frozen_time:
         runner_thread.start()
         time.sleep(1)
         send_udp('Alice'.encode())
@@ -62,3 +62,13 @@ def test_runner_rotates_at_given_interval(send_udp, tmpdir, runner, runner_threa
 
     assert tmpdir.join('data', '0').read() == '127.0.0.1 Alice\n'
     assert tmpdir.join('data', '1').read() == '127.0.0.1 Bob\n'
+
+
+def test_runner_does_not_schedule_rotation_in_0_seconds(tmpdir, runner, runner_thread):
+    with freeze_time('2017-07-28 01:59:59,999') as frozen_time:
+        runner_thread.start()
+        time.sleep(1)
+        runner.stop()
+        runner_thread.join(timeout=1)
+
+    assert tmpdir.join('current').readlink() == 'data/0'

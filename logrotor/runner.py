@@ -77,12 +77,12 @@ class Runner:
     async def _rotator(self):
         while self._running:
             now = time.time()
-            delta = int(self._interval - (now % self._interval))
+            delta = self._interval - (now % self._interval)
             next_rotation = now + delta
             logging.info('Scheduling next rotation at {} (in {} seconds)'
                          .format(datetime.fromtimestamp(next_rotation).isoformat(), delta))
             while self._running:
                 await asyncio.sleep(1)
-                if time.time() > next_rotation:
+                if time.time() >= next_rotation:
                     await self._file_ring.rotate()
                     break
