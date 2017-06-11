@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import socket
 
 import pytest
@@ -25,3 +26,9 @@ def send_udp(udp_port):
         sock.sendto(message, (IP, udp_port))
 
     return sender
+
+
+@pytest.fixture(autouse=True)
+def enable_logging():
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(filename)-15s %(lineno)4d %(levelname)-8s %(message)s')
