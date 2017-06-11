@@ -14,10 +14,10 @@ UDP_PORT = 1024
 @pytest.fixture
 def runner(tmpdir):
     config = {
+        'rotate_seconds': 3600,
         'storage': {
             'path': str(tmpdir),
             'size': 5,
-            'rotate_seconds': 3600,
         },
         'endpoints': [{
             'type': 'UdpEndpoint',

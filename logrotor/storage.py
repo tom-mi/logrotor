@@ -20,7 +20,7 @@ class StorageError(Exception):
 
 class FileRing:
 
-    def __init__(self, path, size):
+    def __init__(self, path, size, rotate_delay_seconds=0):
         if not isinstance(size, int) and size > 0:
             raise ValueError('Invalid size {}'.format(size))
         logging.info('Initializing ring {} with size {}'.format(path, size))
@@ -31,6 +31,7 @@ class FileRing:
         self._index = None
         self._f = None
         self._lock = asyncio.Lock()
+        self._rotate_delay_seconds = rotate_delay_seconds
 
         self._initialize()
 
@@ -100,6 +101,7 @@ class FileRing:
         logging.info('Rotating ring: {} -> {}'.format(self._index, new_index))
 
         os.unlink(os.path.join(self._data_path, str(new_index)))
+        await asyncio.sleep(self._rotate_delay_seconds)
         await self._f.close()
         self._set_index(new_index)
         await self._open()

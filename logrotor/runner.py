@@ -22,10 +22,10 @@ class Runner(Thread):
         self._rotator_task = None
 
         self._running = False
-        self._interval = config['storage']['rotate_seconds']
+        self._interval = config['rotate_seconds']
 
     def _configure_file_ring(self, config):
-        return FileRing(config['storage']['path'], config['storage']['size'])
+        return FileRing(**config['storage'])
 
     def _configure_endpoints(self, config):
         return [create_endpoint(self._queue, e) for e in config['endpoints']]

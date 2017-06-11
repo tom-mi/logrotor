@@ -1,12 +1,21 @@
 import pytest
 import asyncio
+import time
 
 from logrotor.storage import FileRing, StorageError
+
+
+ROTATE_DELAY_SECONDS = 2
 
 
 @pytest.fixture
 def file_ring(tmpdir):
     return FileRing(str(tmpdir), 5)
+
+
+@pytest.fixture
+def file_ring_with_rotate_delay(tmpdir):
+    return FileRing(str(tmpdir), 5, rotate_delay_seconds=ROTATE_DELAY_SECONDS)
 
 
 @pytest.fixture
@@ -93,6 +102,26 @@ async def test_rotating_clears_file_rotated_to(tmpdir, event_loop, file_ring_wit
     assert file_ring_with_existing_index.index == 4
     assert tmpdir.join('data', '3').read() == 'log-3Alice'
     assert tmpdir.join('data', '4').read() == 'Bob'
+
+
+async def measure_file_absence(path):
+    while path.exists():
+        await asyncio.sleep(0.01)
+    start = time.time()
+    while not path.exists():
+        await asyncio.sleep(0.01)
+    return time.time() - start
+
+
+@pytest.mark.asyncio
+async def test_rotate_delays_creation_of_new_file(tmpdir, event_loop, file_ring_with_rotate_delay):
+    await file_ring_with_rotate_delay.start()
+
+    measurement = event_loop.create_task(measure_file_absence(tmpdir.join('data', '1')))
+    await file_ring_with_rotate_delay.rotate()
+    delay = await asyncio.wait_for(measurement, timeout=5)
+
+    assert delay == pytest.approx(ROTATE_DELAY_SECONDS, 0.1)
 
 
 @pytest.mark.asyncio
