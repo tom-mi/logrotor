@@ -21,15 +21,10 @@ def logrotor():
         config = yaml.load(f)
     runner = Runner(config)
 
-    def sigterm_handler(_signal, _stack_frame):
-        logging.info('Received SIGTERM')
+    def signal_handler(_signal, _stack_frame):
+        logging.info('Received {}'.format(signal.Signals(_signal).name))
         runner.stop()
 
-    signal.signal(signal.SIGTERM, sigterm_handler)
-    runner.start()
-
-    while runner.is_running:
-        try:
-            time.sleep(1)
-        except KeyboardInterrupt:
-            runner.stop()
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    runner.run()

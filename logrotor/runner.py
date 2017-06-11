@@ -8,10 +8,9 @@ from logrotor.endpoint import create_endpoint
 from logrotor.storage import FileRing
 
 
-class Runner(Thread):
+class Runner:
 
     def __init__(self, config):
-        super().__init__()
         self._loop = asyncio.get_event_loop()
         self._queue = asyncio.Queue()
 
