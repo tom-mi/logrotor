@@ -4,9 +4,6 @@ import pytest
 import socket
 
 
-PORT = 1024
-
-
 pytestmark = pytest.mark.asyncio
 
 

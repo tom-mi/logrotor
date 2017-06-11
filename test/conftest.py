@@ -19,11 +19,16 @@ def udp_port():
 
 
 @pytest.fixture
-def send_udp(udp_port):
+def target_ip():
+    return IP
+
+
+@pytest.fixture
+def send_udp(udp_port, target_ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def sender(message):
-        sock.sendto(message, (IP, udp_port))
+        sock.sendto(message, (target_ip, udp_port))
 
     return sender
 
