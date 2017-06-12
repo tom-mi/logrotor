@@ -21,7 +21,8 @@ class Runner:
         self._rotator_task = None
 
         self._running = False
-        self._interval = config['rotate_seconds']
+        self._rotate_interval = config['rotate_every_seconds']
+        self._flush_interval = config['flush_every_seconds']
 
     def _configure_file_ring(self, config):
         return FileRing(**config['storage'])
@@ -45,9 +46,11 @@ class Runner:
         self._consumer_task = self._loop.create_task(self._consumer())
         logging.info('Creating rotator')
         self._rotator_task = self._loop.create_task(self._rotator())
+        logging.info('Creating flusher')
+        self._flusher_task = self._loop.create_task(self._flusher())
 
         logging.info('Running forever')
-        self._loop.run_until_complete(asyncio.gather(self._consumer_task, self._rotator_task))
+        self._loop.run_until_complete(asyncio.gather(self._consumer_task, self._rotator_task, self._flusher_task))
 
         stop_tasks = []
         for endpoint in self._endpoints:
@@ -77,7 +80,7 @@ class Runner:
     async def _rotator(self):
         while self._running:
             now = time.time()
-            delta = self._interval - (now % self._interval)
+            delta = self._rotate_interval - (now % self._rotate_interval)
             next_rotation = now + delta
             logging.info('Scheduling next rotation at {} (in {} seconds)'
                          .format(datetime.fromtimestamp(next_rotation).isoformat(), delta))
@@ -86,3 +89,12 @@ class Runner:
                 if time.time() >= next_rotation:
                     await self._file_ring.rotate()
                     break
+
+    async def _flusher(self):
+        while self._running:
+            for _ in range(int(self._flush_interval)):
+                if not self._running:
+                    break
+                await asyncio.sleep(1)
+            logging.debug('Flushing')
+            await self._file_ring.flush()

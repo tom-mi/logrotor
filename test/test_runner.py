@@ -15,7 +15,8 @@ UDP_PORT = 1024
 @pytest.fixture
 def runner(tmpdir):
     config = {
-        'rotate_seconds': 3600,
+        'flush_every_seconds': 5,
+        'rotate_every_seconds': 3600,
         'storage': {
             'path': str(tmpdir),
             'size': 5,
@@ -72,3 +73,18 @@ def test_runner_does_not_schedule_rotation_in_0_seconds(tmpdir, runner, runner_t
         runner_thread.join(timeout=1)
 
     assert tmpdir.join('current').readlink() == 'data/0'
+
+
+def test_runner_flushes_regularly(tmpdir, runner, runner_thread, send_udp):
+    with freeze_time('2017-07-28') as frozen_time:
+        runner_thread.start()
+        time.sleep(1)
+        send_udp('Alice'.encode())
+        time.sleep(5)
+
+        file_content = tmpdir.join('data', '0').read()
+
+        runner.stop()
+        runner_thread.join(timeout=1)
+
+    assert file_content == '127.0.0.1 Alice\n'
