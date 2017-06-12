@@ -14,7 +14,7 @@ async def test_default_settings(event_loop, send_udp, udp_port, queue):
     send_udp('Test message'.encode())
 
     result = await queue.get()
-    assert result == '127.0.0.1 Test message\n'
+    assert result == '127.0.0.1 Test message'
 
 
 async def test_format(event_loop, send_udp, udp_port, queue):
@@ -34,4 +34,4 @@ async def test_splitlines(event_loop, send_udp, udp_port, queue):
     send_udp('A\nB'.encode())
 
     results = [await queue.get() for _ in range(2)]
-    assert results == ['127.0.0.1 A\n', '127.0.0.1 B\n']
+    assert results == ['127.0.0.1 A', '127.0.0.1 B']

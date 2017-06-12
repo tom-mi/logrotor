@@ -25,7 +25,7 @@ class UdpEndpoint:
 
 class UdpProtocol(asyncio.DatagramProtocol):
 
-    def __init__(self, out, format='{host} {message}\n', splitlines=False):
+    def __init__(self, out, format='{host} {message}', splitlines=False):
         super().__init__()
         self._format = format
         self._out = out

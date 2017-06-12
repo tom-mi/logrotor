@@ -14,7 +14,7 @@ class SyslogUdpEndpoint(UdpEndpoint):
 
 class SyslogUdpProtocol(asyncio.DatagramProtocol):
 
-    def __init__(self, out, format='{timestamp:%b %e %H:%M:%S} {hostname} {message}\n'):
+    def __init__(self, out, format='{timestamp:%b %e %H:%M:%S} {hostname} {message}'):
         super().__init__()
         self._format = format
         self._out = out

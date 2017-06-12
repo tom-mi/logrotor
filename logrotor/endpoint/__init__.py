@@ -1,4 +1,5 @@
 from logrotor.endpoint.udp import UdpEndpoint
+from logrotor.endpoint.syslog import SyslogUdpEndpoint
 
 
 def create_endpoint(out, config):

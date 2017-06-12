@@ -72,7 +72,7 @@ class Runner:
                 await asyncio.sleep(0.1)
             else:
                 msg = self._queue.get_nowait()
-                await self._file_ring.write(msg)
+                await self._file_ring.write(msg + '\n')
 
     async def _rotator(self):
         while self._running:

@@ -28,16 +28,16 @@ async def test_default_settings(event_loop, send_syslog, udp_port, queue):
         send_syslog('Test message')
 
         result = await queue.get()
-        assert result == 'Jan  1 02:03:04 localhost Test message\n'
+        assert result == 'Jan  1 02:03:04 localhost Test message'
 
 
 async def test_all_format_variables(event_loop, send_syslog, udp_port, queue):
     with freeze_time('2018-01-01 02:03:04'):
-        full_format = '{src_host} {timestamp} {level} {facility} {hostname} {message}\n'
+        full_format = '{src_host} {timestamp} {level} {facility} {hostname} {message}'
         endpoint = SyslogUdpEndpoint(queue, bind='127.0.0.1', port=udp_port, format=full_format)
         await endpoint.start(event_loop)
 
         send_syslog('Test message')
 
         result = await queue.get()
-        assert result == '127.0.0.1 2018-01-01 02:03:04 INFO LOCAL7 localhost Test message\n'
+        assert result == '127.0.0.1 2018-01-01 02:03:04 INFO LOCAL7 localhost Test message'
