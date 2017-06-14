@@ -26,7 +26,9 @@ endpoints:
 
 The logrotor docker container expects a config file under `/srv/config.yml`. To run with docker:
 
-    docker run --volume $(pwd)/config.yml:/srv/config.yml --publish 1024:1024/udp --name test_logrotor reifenbt/logrotor
+    docker run \
+        --volume $(pwd)/config.yml:/srv/config.yml \
+        --publish 1024:1024/udp --name test_logrotor reifenbt/logrotor
     
 Run without docker (Python 3.6 required):
 
@@ -40,7 +42,7 @@ Send a message:
 Read the logs (when running with docker):
 
     docker exec test_logrotor cat ./test_storage/current
-    docker exec test_logrotor /bin/sh -c 'cat /test_storage/data/*'
+    docker exec test_logrotor /bin/sh -c 'cat ./test_storage/data/*'
     
 Read the logs (when running without docker):
 
