@@ -25,5 +25,5 @@ class SyslogUdpProtocol(asyncio.DatagramProtocol):
         self._out.put_nowait(self._format.format(
             src_host=host, src_port=port,
             timestamp=message.timestamp, level=message.level.name, facility=message.facility.name,
-            hostname=message.hostname, message=message.message
+            hostname=message.hostname, tag=message.tag, pid=message.pid, message=message.message
         ))

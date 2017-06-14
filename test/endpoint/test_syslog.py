@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from freezegun import freeze_time
@@ -13,8 +14,8 @@ pytestmark = pytest.mark.asyncio
 @pytest.fixture
 def send_syslog(send_udp):
 
-    def sender(message, level=Level.INFO, facility=Facility.LOCAL7, hostname='localhost'):
-        message = Message(level, facility, datetime.now(), hostname, message)
+    def sender(message, level=Level.INFO, facility=Facility.LOCAL7, hostname='localhost', tag='foo', pid=666):
+        message = Message(level, facility, datetime.now(), hostname, tag, pid, message)
         send_udp(message_to_bytes(message))
 
     return sender
@@ -27,17 +28,17 @@ async def test_default_settings(event_loop, send_syslog, udp_port, queue):
 
         send_syslog('Test message')
 
-        result = await queue.get()
+        result = await asyncio.wait_for(queue.get(), timeout=1)
         assert result == 'Jan  1 02:03:04 localhost Test message'
 
 
 async def test_all_format_variables(event_loop, send_syslog, udp_port, queue):
     with freeze_time('2018-01-01 02:03:04'):
-        full_format = '{src_host} {timestamp} {level} {facility} {hostname} {message}'
+        full_format = '{src_host} {timestamp} {level} {facility} {hostname} {tag} {pid} {message}'
         endpoint = SyslogUdpEndpoint(queue, bind='127.0.0.1', port=udp_port, format=full_format)
         await endpoint.start(event_loop)
 
         send_syslog('Test message')
 
-        result = await queue.get()
-        assert result == '127.0.0.1 2018-01-01 02:03:04 INFO LOCAL7 localhost Test message'
+        result = await asyncio.wait_for(queue.get(), timeout=1)
+        assert result == '127.0.0.1 2018-01-01 02:03:04 INFO LOCAL7 localhost foo 666 Test message'
