@@ -1,0 +1,30 @@
+---
+version: "3.2"
+services:
+  goaccess:
+    image: allinurl/goaccess
+    volumes:
+     - logs:/srv/logs
+     - report:/srv/report
+     - ${PWD}/goaccess.conf:/srv/data/goaccess.conf
+  logrotor:
+    image: reifenbt/logrotor
+    volumes:
+      - logs:/srv/logs
+      - ${PWD}/config.yml:/srv/config.yml
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - goaccess
+      - logrotor
+    volumes:
+      - report:/usr/share/nginx/html/report
+      - ${PWD}/nginx_default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - target: 80
+        published: 8080
+        mode: host
+
+volumes:
+  logs:
+  report:

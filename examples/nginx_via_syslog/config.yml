@@ -1,0 +1,11 @@
+---
+rotate_every_seconds: 600
+flush_every_seconds: 2
+storage:
+    path: /srv/logs
+    size: 7
+    rotate_delay_seconds: 0.5
+
+endpoints:
+    - type: SyslogUdpEndpoint
+      format: '{message}'
