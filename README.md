@@ -1,5 +1,7 @@
 # logrotor
-   
+
+[![Build Status](https://travis-ci.org/tom-mi/logrotor.svg?branch=master)](https://travis-ci.org/tom-mi/logrotor)
+
 a lightweight log store with time-based rotation
 
 ## Why
